@@ -12,6 +12,28 @@ menu = input("멜론차트 옵션을 입력하세요: ")
 
 now = datetime.datetime.now()
 
+try:
+    wb = openpyxl.load_workbook("MelonChartSheet.xlsx")
+    sheetList = wb.sheetnames
+    for sheet in sheetList :
+        if menu == sheet :
+            wb.remove(wb[menu])
+            break
+    sheet = wb.create_sheet(menu)
+    sheet.append(["현재시각", now])
+    sheet.append(["순위", "앨범 사진 링크 주소", "곡 명", "아티스트 명", "앨범 명"])
+    print("불러오기 완료")
+
+except:
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.title = menu
+    sheet.append(["현재시각", now])
+    sheet.append(["순위", "앨범 사진 링크 주소", "곡 명", "아티스트 명", "앨범 명"])
+    print("새로 파일을 만들었습니다")
+
+########################################################################################################################
+
 if menu == "realtime" :
     raw = requests.get("https://www.melon.com/chart/index.htm", headers={"User-Agent": "Mozilla/5.0"})
 else :
@@ -64,4 +86,8 @@ for cnt in range(1, 3) :
         print(imgSrc)
         urlretrieve(imgSrc, 'image/'+menu+'/'+rank+'_'+song[:2]+'.png')
 
+        sheet.append([int(rank), imgSrc, song, artistString, album])
+
         print("="*20)
+
+wb.save("MelonChartSheet.xlsx")
